@@ -34,5 +34,6 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'callback_url' => env('DUITKU_BASE_URL') . '/api/topup/callback',
+    'return_url' => env('DUITKU_BASE_URL') . '/topup/return',
 ];

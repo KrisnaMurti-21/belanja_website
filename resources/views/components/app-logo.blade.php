@@ -1,2 +1,2 @@
-<span class="app-brand-logo demo"><x-app-logo-icon /></span>
-<span class="app-brand-text demo menu-text fw-bold ms-2">{{ config('variables.templateName') ? config('variables.templateName') : '' }}</span>
+<span class="app-brand-logo "><img src="assets/logos/logo-black.svg" alt="Logo"></span>
+{{-- <span class="app-brand-text demo fw-bold">{{ config('app.name') }}</span> --}}

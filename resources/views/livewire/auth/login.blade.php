@@ -29,7 +29,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -40,6 +40,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            $this->redirect(route('admin.dashboard'));
+            return;
+        }
+
+        if ($user->role === 'supervisor') {
+            $this->redirect(route('supervisor.dashboard'));
+            return;
+        }
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 
@@ -48,7 +59,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
      */
     protected function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -69,16 +80,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
 };
 ?>
 @section('title', 'Login Page')
 
 @section('page-style')
-@vite([
-    'resources/assets/vendor/scss/pages/page-auth.scss'
-])
+    @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
 @endsection
 
 <div>
@@ -94,16 +103,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <form wire:submit="login" class="mb-6">
         <div class="mb-6">
             <label for="email" class="form-label">{{ __('Email or Username') }}</label>
-            <input
-                wire:model="email"
-                type="email"
-                class="form-control @error('email') is-invalid @enderror"
-                id="email"
-                required
-                autofocus
-                autocomplete="email"
-                placeholder="{{ __('Enter your email') }}"
-            >
+            <input wire:model="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                id="email" required autofocus autocomplete="email" placeholder="{{ __('Enter your email') }}">
             @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -119,15 +120,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 @endif
             </div>
             <div class="input-group input-group-merge">
-                <input
-                    wire:model="password"
-                    type="password"
-                    class="form-control @error('password') is-invalid @enderror"
-                    id="password"
-                    required
+                <input wire:model="password" type="password"
+                    class="form-control @error('password') is-invalid @enderror" id="password" required
                     autocomplete="current-password"
-                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                >
+                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;">
                 <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                 @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
